@@ -1731,6 +1731,8 @@ under the License.
 						<!-- Build files -->
 						<exclude>**/*.iml</exclude>
 						<exclude>flink-quickstart/**/testArtifact/goal.txt</exclude>
+						<!-- JUnit TemporaryFolder directories created relative to module dir -->
+						<exclude>**/org.junit.rules.TemporaryFolder*/**</exclude>
 						<!-- Generated content -->
 						<exclude>out/**</exclude>
 						<exclude>**/target/**</exclude>
