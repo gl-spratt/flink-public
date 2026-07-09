@@ -722,7 +722,7 @@ class JoinOperatorTest {
         // should not work: field index is out of bounds of input tuple
         try {
             ds1.join(ds2).where(0).equalTo(0).projectFirst(-1);
-            fail(null);
+            fail((String) null);
         } catch (IndexOutOfBoundsException iob) {
             // we're good here
         } catch (Exception e) {
@@ -732,7 +732,7 @@ class JoinOperatorTest {
         // should not work: field index is out of bounds of input tuple
         try {
             ds1.join(ds2).where(0).equalTo(0).project(9);
-            fail(null);
+            fail((String) null);
         } catch (IndexOutOfBoundsException iob) {
             // we're good here
         } catch (Exception e) {
