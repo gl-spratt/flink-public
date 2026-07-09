@@ -26,6 +26,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -219,12 +220,25 @@ class ArtifactFetchManagerTest {
     }
 
     private File getFlinkClientsJar() throws IOException {
-        return TestingUtils.getFileFromTargetDir(
-                ArtifactFetchManager.class,
-                p ->
-                        org.apache.flink.util.FileUtils.isJarFile(p)
-                                && p.toFile().getName().startsWith("flink-clients")
-                                && !p.toFile().getName().contains("test-utils"));
+        // The flink-clients JAR is produced by the package phase, which runs after the test
+        // phase. A clean build (mvn clean verify) will not have the JAR available when these
+        // tests execute. Skip gracefully rather than fail.
+        final String pathStr =
+                ArtifactFetchManager.class
+                        .getProtectionDomain()
+                        .getCodeSource()
+                        .getLocation()
+                        .getPath();
+        final Path mvnTargetDir = java.nio.file.Paths.get(pathStr).getParent();
+        final java.util.Collection<Path> jars =
+                org.apache.flink.util.FileUtils.listFilesInDirectory(
+                        mvnTargetDir,
+                        p ->
+                                org.apache.flink.util.FileUtils.isJarFile(p)
+                                        && p.toFile().getName().startsWith("flink-clients")
+                                        && !p.toFile().getName().contains("test-utils"));
+        Assumptions.assumeTrue(!jars.isEmpty(), "flink-clients JAR not found in target/; run mvn package first");
+        return jars.iterator().next().toFile();
     }
 
     private static class DummyHttpDownloadHandler implements HttpHandler {
